@@ -1,158 +1,135 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Check, Compass, Star } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../components/ui/Toast';
+import { 
+  User, 
+  Crown, 
+  Settings, 
+  HelpCircle, 
+  Lock, 
+  ShieldAlert, 
+  LogOut, 
+  Bell, 
+  ChevronRight, 
+  BookOpen, 
+  Coins 
+} from 'lucide-react';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
+import Header from '../../components/layout/Header';
+import BottomNav from '../../components/layout/BottomNav';
 
-const AVATARS = [
-  { id: 'markhor', emoji: '🐐', name: 'Markhor (National)' },
-  { id: 'shaheen', emoji: '🦅', name: 'Shaheen Falcon' },
-  { id: 'leopard', emoji: '🐆', name: 'Snow Leopard' },
-  { id: 'jasmine', emoji: '🌸', name: 'Jasmine Flower' }
-];
-
-const CITIES = [
-  'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Peshawar', 
-  'Quetta', 'Faisalabad', 'Multan', 'Sialkot', 'Gujranwala'
-];
-
-export default function OnboardingProfile() {
-  const { currentUser, updateProfile, addCoins } = useApp();
+export default function Profile() {
+  const { currentUser, logout } = useApp();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const [avatar, setAvatar] = useState('markhor');
-  const [city, setCity] = useState('Karachi');
-  const [carrier, setCarrier] = useState('Jazz');
-  const [loading, setLoading] = useState(false);
-
-  const handleComplete = async () => {
-    setLoading(true);
-    try {
-      const selectedEmoji = AVATARS.find((av) => av.id === avatar)?.emoji || '📱';
-      
-      await updateProfile({
-        avatarUrl: selectedEmoji,
-        walletAddress: currentUser?.walletAddress || `0x${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-      });
-
-      // Show welcome credit celebratory message
-      toast('Welcome bonus active! Ready for coins.', 'success');
-      
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/home');
-      }, 1000);
-    } catch (e) {
-      toast('Onboarding error, please try again.', 'error');
-      setLoading(false);
-    }
+  const handleLogout = () => {
+    logout();
+    toast('Logged out successfully', 'success');
+    navigate('/login');
   };
 
+  const navItems = [
+    { name: 'Ad Campaigns & Premium', path: '/premium', icon: Crown, color: 'text-[#D4AF37]' },
+    { name: 'Notification Center', path: '/notifications', icon: Bell, color: 'text-[#4F8EF7]' },
+    { name: 'Terms of Service', path: '/terms', icon: BookOpen, color: 'text-gray-400' },
+    { name: 'Privacy Policy', path: '/privacy-policy', icon: HelpCircle, color: 'text-gray-400' },
+    { name: 'Admin Console Doorway', path: '/admin/login', icon: ShieldAlert, color: 'text-red-500' }
+  ];
+
   return (
-    <div className="flex-1 flex flex-col justify-between px-6 py-6 overflow-y-auto">
-      {/* Header */}
-      <div className="mt-4 text-center">
-        <h2 className="text-2xl font-bold font-serif text-gray-100 tracking-wide flex items-center justify-center gap-2">
-          Customise Your Profile <Star className="w-5 h-5 text-[#D4AF37]" />
-        </h2>
-        <p className="text-xs text-gray-400 mt-1.5 max-w-[280px] mx-auto leading-relaxed">
-          Select a profile avatar and configure local variables for high payouts.
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0A0A0F]">
+      <Header title="Your Profile" />
+
+      {/* Main Viewport */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        {/* Profile Card Header */}
+        <Card variant="default" className="p-5 text-center relative overflow-hidden text-center border-gray-900 bg-[#12121A]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#4F8EF7]/5 blur-2xl rounded-full" />
+          
+          <div className="mx-auto w-18 h-18 rounded-3xl bg-gradient-to-tr from-[#1A1A2E] to-[#4F8EF7]/20 border border-[#4F8EF7]/40 flex items-center justify-center text-3xl shadow-lg mb-3">
+            {currentUser?.avatarUrl || '🐐'}
+          </div>
+
+          <h3 className="text-xl font-bold font-serif text-gray-100 flex items-center justify-center gap-1.5">
+            {currentUser?.fullName || 'User'}
+            {currentUser?.isPremium && (
+              <span className="text-xs text-[#D4AF37] vertical-middle inline-block">👑</span>
+            )}
+          </h3>
+
+          <p className="text-xs text-gray-500 mt-1 font-mono">{currentUser?.phoneNumber || '03001234567'}</p>
+
+          <div className="mt-3.5 flex justify-center gap-2">
+            {currentUser?.isPremium ? (
+              <Badge status="approved">PREMIUM LIFE</Badge>
+            ) : (
+              <Badge status="pending">REGULAR WALLET</Badge>
+            )}
+            <Badge status="active">PKR DOMICILE</Badge>
+          </div>
+        </Card>
+
+        {/* Profile Stats rows */}
+        <div className="grid grid-cols-2 gap-3.5 text-center">
+          <Card className="py-3 px-1.5">
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Wallet Address</span>
+            <span className="text-xs font-mono font-medium text-gray-300 block mt-1 select-all truncate px-1">
+              {currentUser?.walletAddress || '0x4F8EF7CC'}
+            </span>
+          </Card>
+          <Card className="py-3 px-1.5 border-[#D4AF37]/20">
+            <span className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-wider block">Account Balance</span>
+            <span className="text-sm font-bold text-[#D4AF37] block mt-1">
+              🪙 {new Intl.NumberFormat('en-PK').format(currentUser?.coinBalance || 0)} Coins
+            </span>
+          </Card>
+        </div>
+
+        {/* Navigation list selection */}
+        <div className="text-left py-2.5">
+          <h3 className="text-sm font-semibold tracking-wider text-gray-300 uppercase mb-3 pl-2.5 border-l-2 border-[#D4AF37] font-serif">Quick Actions & Setup</h3>
+          
+          <Card variant="glass" className="p-0 border-gray-900 bg-wallet-card divide-y divide-gray-900/60 overflow-hidden">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div 
+                  key={item.name}
+                  onClick={() => navigate(item.path)}
+                  className="flex items-center justify-between p-4 bg-[#12121A]/40 hover:bg-[#1A1A2E]/50 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4.5 h-4.5 ${item.color}`} />
+                    <span className="text-xs font-semibold text-gray-300 group-hover:text-white transition-colors font-sans">
+                      {item.name}
+                    </span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-300 transition-colors" />
+                </div>
+              );
+            })}
+          </Card>
+        </div>
+
+        {/* Log Out button */}
+        <Button
+          onClick={handleLogout}
+          variant="danger"
+          iconBefore={<LogOut className="w-4.5 h-4.5" />}
+          className="w-full tracking-wide uppercase font-bold text-xs"
+        >
+          Sign Out of Wallet
+        </Button>
+
+        <p className="text-[10px] text-center text-gray-600 pb-6">
+          PakRewards v1.2.0 • Secured under Local Keys Sandbox Cryptography.
         </p>
       </div>
 
-      <div className="space-y-5 my-6">
-        {/* Avatar Select */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider text-left">
-            Choose Your Pakistani Character Emblem
-          </label>
-          <div className="grid grid-cols-4 gap-2.5">
-            {AVATARS.map((av) => (
-              <button
-                key={av.id}
-                onClick={() => setAvatar(av.id)}
-                type="button"
-                className={`
-                  relative h-18 rounded-2xl flex flex-col items-center justify-center border transition-all duration-200 outline-none
-                  ${avatar === av.id 
-                    ? 'border-[#D4AF37] bg-[#D4AF37]/5 text-white scale-105 shadow-md' 
-                    : 'border-gray-800 bg-[#12121A] text-gray-400 hover:border-gray-700'
-                  }
-                `}
-              >
-                <span className="text-2xl mb-1">{av.emoji}</span>
-                <span className="text-[10px] font-sans font-semibold text-center leading-tight truncate px-1 max-w-full">
-                  {av.name.split(' ')[0]}
-                </span>
-                
-                {avatar === av.id && (
-                  <div className="absolute -top-1 -right-1 bg-[#22C55E] text-white p-0.5 rounded-full border border-black shadow">
-                    <Check className="w-2.5 h-2.5" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Location Dropdown selection */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider text-left">
-             Hailing City (Hometown)
-          </label>
-          <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="w-full h-12 bg-[#12121A] border border-gray-800 rounded-xl px-4 text-xs font-medium text-gray-200 outline-none focus:border-[#4F8EF7]"
-          >
-            {CITIES.map((c) => (
-              <option key={c} value={c}>
-                {c}, Pakistan
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Telecommunication network choice */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider text-left">
-            Active Mobile Telecom Network Carrier
-          </label>
-          <div className="grid grid-cols-4 gap-2">
-            {['Jazz', 'Telenor', 'Zong', 'Ufone'].map((net) => (
-              <button
-                key={net}
-                type="button"
-                onClick={() => setCarrier(net)}
-                className={`
-                  h-11 rounded-xl text-xs font-semibold border tracking-wider outline-none transition-all
-                  ${carrier === net 
-                    ? 'bg-[#1A1A2E] text-[#4F8EF7] border-[#4F8EF7]/50' 
-                    : 'bg-[#12121A] text-gray-500 border-gray-800 hover:border-gray-700'
-                  }
-                `}
-              >
-                {net}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <Button
-        onClick={handleComplete}
-        variant="gold"
-        loading={loading}
-        iconAfter={<Compass className="w-5 h-5 ml-1.5" />}
-        className="w-full font-bold uppercase tracking-wider shadow-lg shadow-black/45 h-12.5"
-      >
-        Enter Rewards Dashboard
-      </Button>
+      <BottomNav />
     </div>
   );
 }
