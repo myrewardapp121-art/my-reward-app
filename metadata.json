@@ -1,0 +1,6 @@
+{
+  "name": "Pakistani Rewards and PWA Wallet",
+  "description": "A mobile PWA wallet and rewards app for Pakistani users supporting coins, games, ads, and profile management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
